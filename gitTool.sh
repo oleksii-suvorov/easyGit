@@ -97,7 +97,7 @@ function infoOpts() {
       echo "Done. Successfully set email: $email";
     fi
   elif [ "$answer" = 7 ]; then
-    return 5;
+    bye;
   else
     return 1;
   fi
@@ -139,21 +139,38 @@ function branchOpts() {
   elif [ "$answer" = 3 ]; then
     echo "Type your branch name...";
     read -r branchName;
+    line;
     git checkout -b "$branchName";
+    line;
   elif [ "$answer" = 4 ]; then
+    git branch -a;
     echo "Type branch name to move into...";
     read -r branchName;
+    line;
     git checkout "$branchName";
+    line;
   elif [ "$answer" = 5 ]; then
-    echo "Type branch name to remove...";
+    git branch -a;
+    echo "Type branch name to remove...(locally). Leave empty to cancel operation.";
     read -r branchName;
-    git checkout "$branchName";
+    if [ "$branchName" = "" ]; then
+      clear;
+      echo "Exiting..."
+      sleep 1;
+      return 2;
+    fi
+    line;
+    git branch -D "$branchName";
+    line;
   elif [ "$answer" = 6 ]; then
     echo "Type new name...";
     read -r branchName;
+    line;
     git branch -m "$branchName";
+    git branch --show-current;
+    line;
   elif [ "$answer" = 7 ]; then
-    return 5
+    bye;
   else
     return 1;
   fi
@@ -169,7 +186,7 @@ function mainOpts() {
   echo "4. Git reset.";
   echo "5. Git merge.";
   echo "6. Git commit. Title and description.";
-  echo "7. Git push. By default into your current branch.";
+  echo "7. Git push.";
   echo "8. Exit.";
   read -r answer;
   clear;
@@ -249,15 +266,19 @@ function mainOpts() {
     line;
   elif [ "$answer" = 7 ]; then
     clear;
-    echo "1. Push to current branch.";
+    currentBranch=$(git branch --show-current);
+    echo "1. Push to current branch? ($currentBranch)";
     echo "2. Choose branch to push into.";
     read -r option;
     if [ "$option" = 1 ]; then
-      currentBranch=$(git branch --show-current);
       line;
       git push origin "$currentBranch";
       line;
     else
+      line;
+      echo "Branches:"
+      git branch -a;
+      line;
       echo "Type your branch name to push into...";
       read -r branchNameToPush;
       checkBranches "$branchNameToPush";
@@ -265,10 +286,12 @@ function mainOpts() {
         echo "You can not merge _mvn branch into not _mvn branch or vice versa! Aborting..."
         return 2;
       fi
-      git push origin "$branchName";
+      line;
+      git push origin "$branchNameToPush";
+      line;
     fi
   elif [ "$answer" = 8 ]; then
-      return 5;
+    bye;
   else
     return 1;
   fi
