@@ -254,7 +254,9 @@ function mainOpts() {
     read -r option;
     if [ "$option" = 1 ]; then
       currentBranch=$(git branch --show-current);
+      line;
       git push origin "$currentBranch";
+      line;
     else
       echo "Type your branch name to push into...";
       read -r branchNameToPush;
