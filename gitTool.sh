@@ -206,7 +206,6 @@ function mainOpts() {
       return 2;
     fi
   elif [ "$answer" = 4 ]; then
-#    while true; do
       clear;
       echo "1. Reset one...";
       echo "2. Reset * (all)";
@@ -229,7 +228,6 @@ function mainOpts() {
         clear;
         return 2;
       fi
-#    done
   elif [ "$answer" = 5 ]; then
     echo "Type branch (from) which you wanna merge (into current)...";
     read -r mergeBranch;
@@ -245,9 +243,10 @@ function mainOpts() {
     read -r title;
     echo "Type commit details...";
     read -r details;
+    line;
     git commit -m "$title\n
     $details";
-    sleep 1;
+    line;
   elif [ "$answer" = 7 ]; then
     clear;
     echo "1. Push to current branch.";
