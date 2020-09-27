@@ -124,7 +124,7 @@ function pushChanges() {
     read -r branchNameToPush;
     while true; do
       result=$(checkBranches "$branchNameToPush")
-      if ! "$result"; then
+      if [ ! "$result" ]; then
         return 2;
       fi
     done
