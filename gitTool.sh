@@ -59,6 +59,7 @@ function showRepos() {
 }
 
 function checkout() {
+  echo "Branches:"
   git branch -a;
   echo "Type branch name to enter...(leave blank for cancel operation)";
   read -r branch;
@@ -68,6 +69,9 @@ function checkout() {
   result=$(git checkout "$branch" 2>&1);
   export status="$?";
   export result;
+  line;
+  echo "$result";
+  line;
 }
 
 function infoOpts() {
@@ -110,10 +114,6 @@ function infoOpts() {
     showRepos;
   elif [ "$answer" = 6 ]; then
     checkout;
-    line;
-    echo "$result";
-    echo "$status";
-    line;
     while [ "$status" = 1 ]; do
       if [[ "$result" =~ .+"Please commit your changes".+ ]]; then
         echo "It seems like you have uncommitted changes...";
@@ -132,7 +132,7 @@ function infoOpts() {
           clear;
           return 2;
         fi
-      elif [[ "$result" =~ .+"error: pathspec".+ ]]; then
+      elif [[ "$result" =~ .+"pathspec".+ ]]; then
         checkout;
       fi
     done
