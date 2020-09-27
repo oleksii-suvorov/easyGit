@@ -344,7 +344,7 @@ function mainOpts() {
     line;
   elif [ "$answer" = 3 ]; then
     clear;
-    echo "1. Add one file...";
+    echo "1. Add one file...(leave blank to cancel operation)";
     echo "2. Add * (all)";
     echo "3. Back.";
     read -r option;
@@ -353,32 +353,38 @@ function mainOpts() {
       git add *;
       git status;
     elif [ "$option" = 1 ]; then
-      clear;
-      git status --porcelain > temp;
-      nano temp;
-      while read -ra line;
-      do
-          for file in "${line[@]}";
-          do
+      echo "Open in nano or manually? (leave blank to cancel operation)";
+      echo "1. nano";
+      echo "2. manually";
+      read -r answer;
+      if checkIfBlank "$answer"; then
+          return 2;
+      elif [ "$answer" == 1 ]; then
+        clear;
+        git status --porcelain > temp;
+        nano temp;
+        while read -ra line; do
+          for file in "${line[@]}"; do
             if [ "$file" != "??" ] && [ "$file" != "M" ]; then
               git add "$file";
             fi
           done;
-      done < temp;
-
-#      echo "Type file name to add...(leave blank to cancel operation)";
-#      read -r fileName;
-#      if checkIfBlank "$fileName" == 2; then
-#        return 2;
-#      fi
-#      git add "$fileName";
+        done < temp;
+      else
+        echo "Type file name to add...(leave blank to cancel operation)";
+        read -r fileName;
+        if checkIfBlank "$fileName"; then
+          return 2;
+        fi
+        git add "$fileName";
+      fi
       git status;
-#    else
-#      clear;
-#      return 2;
-    fi
-    commitOffer;
-    pushOffer;
+   else
+    clear;
+    return 2;
+   fi
+   commitOffer;
+   pushOffer;
   elif [ "$answer" = 4 ]; then
       clear;
       echo "1. Reset one...";
