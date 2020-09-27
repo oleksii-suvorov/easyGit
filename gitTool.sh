@@ -15,8 +15,19 @@ function line() {
   echo "-------------------------------------------";
 }
 
+function checkIfBlank() {
+  if [ "$1" = "" ]; then
+    echo "Operation was canceled. Exiting...";
+    sleep 1;
+    clear;
+    return 0;
+  else
+    return 1;
+  fi
+}
+
 function showRepos() {
-  echo "Show remote repos?";
+  echo "Print remote repos?";
   echo "1. Yes.";
   echo "2. No.";
   read -r show;
@@ -33,12 +44,12 @@ function showRepos() {
  function checkBranches() {
   currentBranch=$(git branch --show-current);
   if [[ ! "$1" =~ .+_mvn$ && $currentBranch =~ .+_mvn$ ]]; then
-      line;
-      echo "You can not push _mvn branch into not _mvn branch! Aborting...";
-      line;
-      return 2;
+    line;
+    echo "Can't push _mvn branch into not _mvn branch. Only vice versa. Aborting...";
+    line;
+    return 2;
   else
-      return 1;
+    return 1;
   fi
 }
 
@@ -62,27 +73,46 @@ function infoOpts() {
     git remote -v;
     line;
   elif [ "$answer" = 3 ]; then
-    echo "Type url of your repository...(Leave blank to cancel this operation)";
+    echo "Type url of your repository...(leave blank to cancel this operation)";
     read -r repository;
     echo "Type name...(Leave blank to cancel this operation)";
     read -r nameRemote;
-    if [ "$nameRemote" = "" ] || [ "$repository" = "" ]; then
-      echo "Exiting...";
-      sleep 1;
-      clear;
+    if checkIfBlank "$nameRemote" || checkIfBlank "$repository"; then
       return 2;
     fi
     git remote add "$nameRemote" "$repository";
     showRepos;
   elif [ "$answer" = 4 ]; then
     showRepos;
-    echo "Type repository to remove...";
+    echo "Type repository to remove...(leave blank to cancel this operation)";
     read -r repository;
-    git remote remove "$repository";
+    if checkIfBlank "$repository"; then
+      return 2;
+    fi
+    git remote  remove "$repository";
     showRepos;
   elif [ "$answer" = 6 ]; then
+    git branch -a;
+    echo "Type branch name to enter...";
+    read -r branch;
+    if checkIfBlank "$branch"; then
+      return 2;
+    fi
     line;
-    git checkout;
+    if git checkout "$branch" | grep error:; then
+      echo "It seems like you have uncommitted changes...";
+      echo "Force checkout? (changes will be lost)?";
+      echo "1. Yes.";
+      echo "2. No.";
+      read -r force;
+      if checkIfBlank "$force"; then
+        return 2;
+      elif [ "$force" = 1 ]; then
+         git checkout -f "$branch";
+      else
+        return 2;
+      fi
+    fi
     line;
   elif [ "$answer" = 1 ]; then
     echo "Type your user name";
@@ -154,11 +184,8 @@ function branchOpts() {
     git branch -a;
     echo "Type branch name to remove...(locally). Leave empty to cancel operation.";
     read -r branchName;
-    if [ "$branchName" = "" ]; then
-      clear;
-      echo "Exiting..."
-      sleep 1;
-      return 2;
+    if checkIfBlank "$fileName" == 2; then
+       return 2;
     fi
     line;
     git branch -D "$branchName";
@@ -213,12 +240,11 @@ function mainOpts() {
       git status;
       echo "Type file name to add...(leave blank to cancel operation)";
       read -r fileName;
-      if [ "$fileName" != "" ]; then
-        git add "$fileName";
-        git status;
-      else
-        echo "Exiting...";
+      if checkIfBlank "$fileName" == 2; then
+        return 2;
       fi
+      git add "$fileName";
+      git status;
     else
       clear;
       return 2;
@@ -236,12 +262,11 @@ function mainOpts() {
         git status;
         echo "Type file to reset...(leave blank to cancel operation)";
         read -r fileName;
-        if [ "$fileName" != "" ]; then
-          git reset "$fileName";
-          git status;
-        else
-          echo "Exiting...";
+        if checkIfBlank "$fileName" == 2; then
+          return 2;
         fi
+        git reset "$fileName";
+        git status;
       else
         clear;
         return 2;
@@ -272,12 +297,6 @@ function mainOpts() {
     echo "2. Choose branch to push into.";
     read -r option;
     if [ "$option" = 1 ]; then
-      line;
-      checkBranches "$branchNameToPush";
-      if [ "$?" == 2 ]; then
-        keypress;
-        return 2;
-      fi
       git push origin "$currentBranch";
       line;
     else
@@ -285,7 +304,7 @@ function mainOpts() {
       echo "Branches:"
       git branch -a;
       line;
-      echo "Type your branch name to push into...";
+      echo "Branch name to push into...";
       read -r branchNameToPush;
       checkBranches "$branchNameToPush";
       if [ "$?" == 2 ]; then
