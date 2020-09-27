@@ -127,13 +127,12 @@ function pushChanges() {
       if checkIfBlank "$branchNameToPush"; then
         return 2
       elif checkBranches "$branchNameToPush"; then
-        return 2;
+        line;
+        git push origin "$branchNameToPush";
+        line;
+        return 0;
       fi
     done
-    line;
-    git push origin "$branchNameToPush";
-    line;
-    return 0;
   fi
 }
 
