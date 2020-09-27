@@ -74,6 +74,33 @@ function checkout() {
   line;
 }
 
+function pushChanges() {
+  clear;
+  currentBranch=$(git branch --show-current);
+  echo "1. Push to current branch? ($currentBranch)";
+  echo "2. Choose branch to push into.";
+  read -r option;
+  if [ "$option" = 1 ]; then
+    git push origin "$currentBranch";
+    line;
+  else
+    line;
+    echo "Branches:"
+    git branch -a;
+    line;
+    echo "Branch name to push into...";
+    read -r branchNameToPush;
+    checkBranches "$branchNameToPush";
+    if [ "$?" == 2 ]; then
+      keypress;
+      return 2;
+    fi
+    line;
+    git push origin "$branchNameToPush";
+    line;
+  fi
+}
+
 function commitChanges() {
   clear;
   echo "Type commit title...";
@@ -87,6 +114,23 @@ function commitChanges() {
   git commit -m "$title\n
   $details";
   line;
+}
+
+function commitAndPush() {
+  echo "Commit changes?";
+  echo "1. Yes.";
+  echo "2. No.";
+  read -r commit;
+  if [ "$commit" = 1 ]; then
+    commitChanges;
+  fi
+  echo "Push changes?";
+  echo "1. Yes.";
+  echo "2. No.";
+  read -r push;
+  if [ "$push" = 1 ]; then
+    pushChanges;
+  fi
 }
 
 function infoOpts() {
@@ -316,13 +360,7 @@ function mainOpts() {
       clear;
       return 2;
     fi
-    echo "Commit changes?";
-    echo "1. Yes.";
-    echo "2. No.";
-    read -r commit;
-    if [ "$commit" = 1 ]; then
-      commitChanges;
-    fi
+    commitAndPush;
   elif [ "$answer" = 4 ]; then
       clear;
       echo "1. Reset one...";
@@ -357,30 +395,7 @@ function mainOpts() {
   elif [ "$answer" = 6 ]; then
     commitChanges;
   elif [ "$answer" = 7 ]; then
-    clear;
-    currentBranch=$(git branch --show-current);
-    echo "1. Push to current branch? ($currentBranch)";
-    echo "2. Choose branch to push into.";
-    read -r option;
-    if [ "$option" = 1 ]; then
-      git push origin "$currentBranch";
-      line;
-    else
-      line;
-      echo "Branches:"
-      git branch -a;
-      line;
-      echo "Branch name to push into...";
-      read -r branchNameToPush;
-      checkBranches "$branchNameToPush";
-      if [ "$?" == 2 ]; then
-        keypress;
-        return 2;
-      fi
-      line;
-      git push origin "$branchNameToPush";
-      line;
-    fi
+    pushChanges;
   elif [ "$answer" = 8 ]; then
     bye;
   else
