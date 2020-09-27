@@ -110,8 +110,11 @@ function infoOpts() {
     showRepos;
   elif [ "$answer" = 6 ]; then
     checkout;
+    line;
+    echo "$result";
+    echo "$status";
+    line;
     while [ "$status" = 1 ]; do
-      checkout;
       if [[ "$result" =~ .+"Please commit your changes".+ ]]; then
         echo "It seems like you have uncommitted changes...";
         echo "Force checkout? (changes will be lost)?";
@@ -123,8 +126,10 @@ function infoOpts() {
         elif [ "$force" = 1 ]; then
           line;
           status=$(git checkout -f "$branch");
+          echo "$status";
           line;
         else
+          clear;
           return 2;
         fi
       elif [[ "$result" =~ .+"error: pathspec".+ ]]; then
