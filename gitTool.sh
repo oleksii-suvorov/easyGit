@@ -124,8 +124,9 @@ function pushChanges() {
       line;
       echo "Branch name to push into...";
       read -r branchNameToPush;
-      result=$(checkBranches "$branchNameToPush")
-      if [ ! "$result" ]; then
+      if checkIfBlank "$branchNameToPush"; then
+        return 2
+      elif ! checkBranches "$branchNameToPush"; then
         return 2;
       fi
     done
