@@ -58,6 +58,18 @@ function showRepos() {
   fi
 }
 
+function checkout() {
+  git branch -a;
+  echo "Type branch name to enter...(leave blank for cancel operation)";
+  read -r branch;
+  if checkIfBlank "$branch"; then
+    return 2;
+  fi
+  result=$(git checkout "$branch" 2>&1);
+  export status="$?";
+  export result;
+}
+
 function infoOpts() {
   echo "0. <- Main menu.";
   echo "1. Config global name/mail.";
@@ -97,31 +109,28 @@ function infoOpts() {
     git remote  remove "$repository";
     showRepos;
   elif [ "$answer" = 6 ]; then
-    git branch -a;
-    echo "Type branch name to enter...";
-    read -r branch;
-    if checkIfBlank "$branch"; then
-      return 2;
-    fi
-    line;
-    git checkout "$branch";
-    line;
-    if [ "$?" == 1 ]; then
-      echo "It seems like you have uncommitted changes...";
-      echo "Force checkout? (changes will be lost)?";
-      echo "1. Yes.";
-      echo "2. No.";
-      read -r force;
-      if checkIfBlank "$force"; then
-        return 2;
-      elif [ "$force" = 1 ]; then
-        line;
-        git checkout -f "$branch";
-        line;
-      else
-        return 2;
+    checkout;
+    while [ "$status" = 1 ]; do
+      checkout;
+      if [[ "$result" =~ .+"Please commit your changes".+ ]]; then
+        echo "It seems like you have uncommitted changes...";
+        echo "Force checkout? (changes will be lost)?";
+        echo "1. Yes.";
+        echo "2. No.";
+        read -r force;
+        if checkIfBlank "$force"; then
+          return 2;
+        elif [ "$force" = 1 ]; then
+          line;
+          status=$(git checkout -f "$branch");
+          line;
+        else
+          return 2;
+        fi
+      elif [[ "$result" =~ .+"error: pathspec".+ ]]; then
+        checkout;
       fi
-    fi
+    done
   elif [ "$answer" = 1 ]; then
     echo "Type your user name.(leave blank to cancel this operation)";
     read -r username;
@@ -250,6 +259,7 @@ function mainOpts() {
       git add *;
       git status;
     elif [ "$option" = 1 ]; then
+      clear;
       git status;
       echo "Type file name to add...(leave blank to cancel operation)";
       read -r fileName;
