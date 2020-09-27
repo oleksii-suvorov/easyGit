@@ -122,10 +122,12 @@ function pushChanges() {
     line;
     echo "Branch name to push into...";
     read -r branchNameToPush;
-    if ! checkBranches "$branchNameToPush"; then
-      keypress;
-      return 2;
-    fi
+    while true; do
+      result=$(checkBranches "$branchNameToPush")
+      if ! "$result"; then
+        return 2;
+      fi
+    done
     line;
     git push origin "$branchNameToPush";
     line;
