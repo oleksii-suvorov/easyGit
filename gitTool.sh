@@ -347,7 +347,7 @@ function mainOpts() {
     line;
   elif [ "$answer" = 3 ]; then
     clear;
-    echo "1. Add one file...(leave blank to cancel operation)";
+    echo "1. Add one-several files...(leave blank to cancel operation)";
     echo "2. Add * (all)";
     echo "3. Back.";
     read -r option;
@@ -373,6 +373,7 @@ function mainOpts() {
             fi
           done;
         done < temp;
+        rm ./temp;
       else
         clear;
         git status;
@@ -431,6 +432,7 @@ function mainOpts() {
     fi
   elif [ "$answer" = 6 ]; then
     commitChanges;
+    pushOffer;
   elif [ "$answer" = 7 ]; then
     pushChanges;
   elif [ "$answer" = 8 ]; then
