@@ -99,7 +99,7 @@ function infoOpts() {
       return 2;
     fi
     line;
-    if git checkout "$branch" | grep error:; then
+    if [ ! "$(git checkout "$branch")" ]; then
       echo "It seems like you have uncommitted changes...";
       echo "Force checkout? (changes will be lost)?";
       echo "1. Yes.";
@@ -113,7 +113,6 @@ function infoOpts() {
         return 2;
       fi
     fi
-    line;
   elif [ "$answer" = 1 ]; then
     echo "Type your user name";
     read -r username;
