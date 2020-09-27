@@ -127,6 +127,7 @@ function pushChanges() {
     line;
     git push origin "$branchNameToPush";
     line;
+    return 0;
   fi
 }
 
@@ -390,7 +391,9 @@ function mainOpts() {
     return 2;
    fi
    if commitOffer; then
-    pushOffer;
+    if pushOffer; then
+      return 2;
+    fi
    fi
   elif [ "$answer" = 4 ]; then
       clear;
