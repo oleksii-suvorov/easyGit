@@ -354,17 +354,28 @@ function mainOpts() {
       git status;
     elif [ "$option" = 1 ]; then
       clear;
+      git status --porcelain > temp;
+      nano temp;
+      while read -ra line;
+      do
+          for file in "${line[@]}";
+          do
+            if [ "$file" != "??" ] && [ "$file" != "M" ]; then
+              git add "$file";
+            fi
+          done;
+      done < temp;
+
+#      echo "Type file name to add...(leave blank to cancel operation)";
+#      read -r fileName;
+#      if checkIfBlank "$fileName" == 2; then
+#        return 2;
+#      fi
+#      git add "$fileName";
       git status;
-      echo "Type file name to add...(leave blank to cancel operation)";
-      read -r fileName;
-      if checkIfBlank "$fileName" == 2; then
-        return 2;
-      fi
-      git add "$fileName";
-      git status;
-    else
-      clear;
-      return 2;
+#    else
+#      clear;
+#      return 2;
     fi
     commitOffer;
     pushOffer;
