@@ -317,6 +317,7 @@ function branchOpts() {
 }
 
 function mainOpts() {
+  echo "                                                         Current branch: $(git branch --show-current)";
   echo "0. Back";
   echo "1. Git status.";
   echo "2. Git diff.";
@@ -384,14 +385,18 @@ function mainOpts() {
         return 2;
       fi
   elif [ "$answer" = 5 ]; then
-    echo "Type branch (from) which you wanna merge (into current)...";
+    echo "Type branch which you wanna merge... (into current). Leave blank to cancel operation.";
     read -r mergeBranch;
+    if checkIfBlank "$mergeBranch"; then
+      return 2;
+    fi
     currentBranch=$(git branch --show-current);
-    if [[ $currentBranch =~ .+_mvn$ && $mergeBranch =~ .+_mvn$ ]]; then
+    if [[ $currentBranch =~ .+_mvn$ && ! $mergeBranch =~ .+_mvn$ ]]; then
       echo "You can not merge _mvn branch into not _mvn branch! Aborting..."
       return 2;
     fi
     git merge "$mergeBranch";
+    pushChanges;
   elif [ "$answer" = 6 ]; then
     commitChanges;
   elif [ "$answer" = 7 ]; then
