@@ -10,6 +10,7 @@ fi
 
 function printOptions() {
   clear;
+  echo "                                                         Current branch: $(git branch --show-current)";
   echo "0. Exit.";
   echo "1. Info operations. (init, add/show repo, checkout, config global)";
   echo "2. Branch operations. (create, change, remove, rename)";
@@ -146,7 +147,7 @@ function commitChanges() {
     return 2;
   fi
   line;
-  git commit -m "$title\n
+  git commit -m "$title
   $details";
   line;
 }
