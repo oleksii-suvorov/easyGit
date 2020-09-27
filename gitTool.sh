@@ -260,8 +260,8 @@ function branchOpts() {
   elif [ "$answer" = 2 ]; then
 
     while true; do
-      echo "Choose branches to show or leave blank to exit.";
-      echo "0. Back.";
+      echo "Choose repo to show branches in or leave blank to exit.";
+      echo "0. <- Main menu.";
       echo "1. Local.";
       echo "2. Remote.";
       echo "3. All.";
