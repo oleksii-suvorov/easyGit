@@ -99,7 +99,8 @@ function infoOpts() {
       return 2;
     fi
     line;
-    if [ ! "$(git checkout "$branch")" ]; then
+    git checkout "$branch";
+    if [ "$?" == 1 ]; then
       echo "It seems like you have uncommitted changes...";
       echo "Force checkout? (changes will be lost)?";
       echo "1. Yes.";
