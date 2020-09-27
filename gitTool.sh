@@ -112,6 +112,7 @@ function pushChanges() {
   elif [ "$option" = 1 ]; then
     git push origin "$currentBranch";
     line;
+    return 0;
   else
     line;
     echo "Branches:"
@@ -348,7 +349,7 @@ function mainOpts() {
     line;
   elif [ "$answer" = 3 ]; then
     clear;
-    echo "1. Add one-several files...(leave blank to cancel operation)";
+    echo "1. Add one/several files...(leave blank to cancel operation)";
     echo "2. Add * (all)";
     echo "3. Back.";
     read -r option;
