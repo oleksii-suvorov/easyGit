@@ -434,8 +434,7 @@ function mainOpts() {
       echo "You can not merge _mvn branch into not _mvn branch! Aborting..."
       return 2;
     fi
-    git merge "$mergeBranch";
-    if [ "$?" ]; then
+    if git merge "$mergeBranch"; then
       pushOffer;
     fi
   elif [ "$answer" = 6 ]; then
