@@ -34,7 +34,9 @@ function showRepos() {
   currentBranch=$(git branch --show-current);
   if [[ ($currentBranch != *"_mvn"* && $1 == *"_mvn"*) ||
     ($1 != *"_mvn"* && $currentBranch == *"_mvn"*) ]]; then
-      echo "You can not merge _mvn branch into not _mvn branch! Aborting..."
+      line;
+      echo "You can not merge _mvn branch into not _mvn branch or vice versa! Aborting...";
+      line;
       return 2;
   else
       return 1;
@@ -272,6 +274,11 @@ function mainOpts() {
     read -r option;
     if [ "$option" = 1 ]; then
       line;
+      checkBranches "$branchNameToPush";
+      if [ "$?" == 2 ]; then
+        keypress;
+        return 2;
+      fi
       git push origin "$currentBranch";
       line;
     else
@@ -283,7 +290,7 @@ function mainOpts() {
       read -r branchNameToPush;
       checkBranches "$branchNameToPush";
       if [ "$?" == 2 ]; then
-        echo "You can not merge _mvn branch into not _mvn branch or vice versa! Aborting..."
+        keypress;
         return 2;
       fi
       line;
