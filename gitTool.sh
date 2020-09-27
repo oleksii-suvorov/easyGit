@@ -103,10 +103,13 @@ gitCheckout() {
 function pushChanges() {
   clear;
   currentBranch=$(git branch --show-current);
+  echo "Leave blank to cancel operation.";
   echo "1. Push to current branch? ($currentBranch)";
   echo "2. Choose branch to push into.";
   read -r option;
-  if [ "$option" = 1 ]; then
+  if checkIfBlank "$option"; then
+    return 2;
+  elif [ "$option" = 1 ]; then
     git push origin "$currentBranch";
     line;
   else
@@ -129,9 +132,9 @@ function pushChanges() {
 
 function commitChanges() {
   clear;
-  echo "Type commit title...";
+  echo "Type commit title...(leave blank to cancel this operation)";
   read -r title;
-  echo "Type commit details...";
+  echo "Type commit details...(leave blank to cancel this operation)";
   read -r details;
   if checkIfBlank "$title"; then
     return 2;
@@ -142,7 +145,7 @@ function commitChanges() {
   line;
 }
 
-function commitAndPush() {
+function commitOffer() {
   echo "Commit changes?";
   echo "1. Yes.";
   echo "2. No.";
@@ -150,6 +153,9 @@ function commitAndPush() {
   if [ "$commit" = 1 ]; then
     commitChanges;
   fi
+}
+
+function pushOffer() {
   echo "Push changes?";
   echo "1. Yes.";
   echo "2. No.";
@@ -277,12 +283,6 @@ function branchOpts() {
     git checkout -b "$branchName";
     line;
   elif [ "$answer" = 4 ]; then
-#    git branch -a;
-#    echo "Type branch name to move into...";
-#    read -r branchName;
-#    line;
-#    git checkout "$branchName";
-#    line;
     gitCheckout;
   elif [ "$answer" = 5 ]; then
     git branch -a;
@@ -366,7 +366,8 @@ function mainOpts() {
       clear;
       return 2;
     fi
-    commitAndPush;
+    commitOffer;
+    pushOffer;
   elif [ "$answer" = 4 ]; then
       clear;
       echo "1. Reset one...";
@@ -397,12 +398,14 @@ function mainOpts() {
       return 2;
     fi
     currentBranch=$(git branch --show-current);
-    if [[ $currentBranch =~ .+_mvn$ && ! $mergeBranch =~ .+_mvn$ ]]; then
+    if [[ ! ($currentBranch =~ .+_mvn$) && $mergeBranch =~ .+_mvn$ ]]; then
       echo "You can not merge _mvn branch into not _mvn branch! Aborting..."
       return 2;
     fi
     git merge "$mergeBranch";
-    pushChanges;
+    if [ "$?" ]; then
+      pushOffer;
+    fi
   elif [ "$answer" = 6 ]; then
     commitChanges;
   elif [ "$answer" = 7 ]; then
