@@ -152,6 +152,9 @@ function commitOffer() {
   read -r commit;
   if [ "$commit" = 1 ]; then
     commitChanges;
+    return 0;
+  else
+    return 1
   fi
 }
 
@@ -371,6 +374,8 @@ function mainOpts() {
           done;
         done < temp;
       else
+        clear;
+        git status;
         echo "Type file name to add...(leave blank to cancel operation)";
         read -r fileName;
         if checkIfBlank "$fileName"; then
@@ -383,8 +388,9 @@ function mainOpts() {
     clear;
     return 2;
    fi
-   commitOffer;
-   pushOffer;
+   if commitOffer; then
+    pushOffer;
+   fi
   elif [ "$answer" = 4 ]; then
       clear;
       echo "1. Reset one...";
