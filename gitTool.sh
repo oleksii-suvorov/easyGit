@@ -58,7 +58,7 @@ function showRepos() {
   fi
 }
 
-function checkout() {
+function checkoutCheckErrors() {
   echo "Branches:"
   git branch -a;
   echo "Type branch name to enter...(leave blank for cancel operation)";
@@ -72,6 +72,32 @@ function checkout() {
   line;
   echo "$result";
   line;
+}
+
+gitCheckout() {
+  checkoutCheckErrors;
+  while [ "$status" = 1 ]; do
+    if [[ "$result" =~ .+"Please commit your changes".+ ]]; then
+      echo "It seems like you have uncommitted changes...";
+      echo "Force checkout? (changes will be lost)?";
+      echo "1. Yes.";
+      echo "2. No.";
+      read -r force;
+      if checkIfBlank "$force"; then
+        return 2;
+      elif [ "$force" = 1 ]; then
+        line;
+        status=$(git checkout -f "$branch");
+        echo "$status";
+        line;
+      else
+        clear;
+        return 2;
+      fi
+    elif [[ "$result" =~ .+"pathspec".+ ]]; then
+      checkoutCheckErrors;
+    fi
+  done
 }
 
 function pushChanges() {
@@ -172,29 +198,7 @@ function infoOpts() {
     git remote  remove "$repository";
     showRepos;
   elif [ "$answer" = 6 ]; then
-    checkout;
-    while [ "$status" = 1 ]; do
-      if [[ "$result" =~ .+"Please commit your changes".+ ]]; then
-        echo "It seems like you have uncommitted changes...";
-        echo "Force checkout? (changes will be lost)?";
-        echo "1. Yes.";
-        echo "2. No.";
-        read -r force;
-        if checkIfBlank "$force"; then
-          return 2;
-        elif [ "$force" = 1 ]; then
-          line;
-          status=$(git checkout -f "$branch");
-          echo "$status";
-          line;
-        else
-          clear;
-          return 2;
-        fi
-      elif [[ "$result" =~ .+"pathspec".+ ]]; then
-        checkout;
-      fi
-    done
+    gitCheckout;
   elif [ "$answer" = 1 ]; then
     echo "Type your user name.(leave blank to cancel this operation)";
     read -r username;
@@ -273,12 +277,13 @@ function branchOpts() {
     git checkout -b "$branchName";
     line;
   elif [ "$answer" = 4 ]; then
-    git branch -a;
-    echo "Type branch name to move into...";
-    read -r branchName;
-    line;
-    git checkout "$branchName";
-    line;
+#    git branch -a;
+#    echo "Type branch name to move into...";
+#    read -r branchName;
+#    line;
+#    git checkout "$branchName";
+#    line;
+    gitCheckout;
   elif [ "$answer" = 5 ]; then
     git branch -a;
     echo "Type branch name to remove...(locally). Leave empty to cancel operation.";
@@ -385,6 +390,7 @@ function mainOpts() {
         return 2;
       fi
   elif [ "$answer" = 5 ]; then
+    git branch;
     echo "Type branch which you wanna merge... (into current). Leave blank to cancel operation.";
     read -r mergeBranch;
     if checkIfBlank "$mergeBranch"; then
