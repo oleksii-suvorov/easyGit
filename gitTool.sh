@@ -32,10 +32,9 @@ function showRepos() {
 
  function checkBranches() {
   currentBranch=$(git branch --show-current);
-  if [[ $currentBranch =~ .+_mvn$ && ! "$1" =~ .*_mvn$ ||
-    ! "$1" =~ _mvn$ && $currentBranch =~ .+_mvn$ ]]; then
+  if [[ ! "$1" =~ _mvn$ && $currentBranch =~ .+_mvn$ ]]; then
       line;
-      echo "You can not merge _mvn branch into not _mvn branch or vice versa! Aborting...";
+      echo "You can not push _mvn branch into not _mvn branch! Aborting...";
       line;
       return 2;
   else
