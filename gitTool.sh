@@ -3,6 +3,11 @@
 clear;
 cat ./pic.txt;
 sleep 1;
+
+if [ "$(git config --global core.editor)" != "nano" ]; then
+  git config --global core.editor nano;
+fi
+
 function printOptions() {
   clear;
   echo "0. Exit.";
@@ -100,6 +105,7 @@ function infoOpts() {
     fi
     line;
     git checkout "$branch";
+    line;
     if [ "$?" == 1 ]; then
       echo "It seems like you have uncommitted changes...";
       echo "Force checkout? (changes will be lost)?";
@@ -109,17 +115,23 @@ function infoOpts() {
       if checkIfBlank "$force"; then
         return 2;
       elif [ "$force" = 1 ]; then
-         git checkout -f "$branch";
+        line;
+        git checkout -f "$branch";
+        line;
       else
         return 2;
       fi
     fi
   elif [ "$answer" = 1 ]; then
-    echo "Type your user name";
+    echo "Type your user name.(leave blank to cancel this operation)";
     read -r username;
-    echo "Type your email";
+    echo "Type your email.(leave blank to cancel this operation)";
     read -r email;
+    if checkIfBlank "$username" || checkIfBlank "$email"; then
+      return 2;
+    fi
     git config --global user.name "$username";
+    line;
     if [ "$?" = 0 ]; then
       echo "Done. Successfully set username: $username";
     fi
@@ -127,6 +139,7 @@ function infoOpts() {
     if [ "$?" = 0 ]; then
       echo "Done. Successfully set email: $email";
     fi
+    line;
   elif [ "$answer" = 7 ]; then
     bye;
   else
