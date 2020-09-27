@@ -179,17 +179,25 @@ function branchOpts() {
     git branch --show-current;
     line;
   elif [ "$answer" = 2 ]; then
-    echo "Local or remote? Leave blank to exit.";
+    echo "Choose branches or leave blank to exit.";
     echo "1. Local.";
     echo "2. Remote.";
+    echo "3. All.";
     read -r branches;
+    if checkIfBlank "$branches"; then
+      return2;
+    fi
     if [ "$branches" = 1 ]; then
       line;
-      git branch -a;
+      git branch;
       line;
     elif [ "$branches" = 2 ]; then
       line;
       git branch -r;
+      line;
+    elif [ "$branches" = 3 ]; then
+      line;
+      git branch -a;
       line;
     else
       echo "Exiting...";
