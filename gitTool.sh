@@ -48,13 +48,14 @@ function showRepos() {
 
  function checkBranches() {
   currentBranch=$(git branch --show-current);
-  if [[ ! "$1" =~ .+_mvn$ && $currentBranch =~ .+_mvn$ ]]; then
+  if [[ ! "$1" =~ .+_mvn$ && $currentBranch =~ .+_mvn$ ]] ||
+    [[ "$1" =~ .+_mvn$ && ! $currentBranch =~ .+_mvn$ ]]; then
     line;
-    echo "Can't push _mvn branch into not _mvn branch. Only vice versa. Aborting...";
+    echo "Can't push _mvn branch into not _mvn branch and vice versa. Aborting...";
     line;
-    return 2;
-  else
     return 1;
+  else
+    return 0;
   fi
 }
 
@@ -110,6 +111,7 @@ function pushChanges() {
   if checkIfBlank "$option"; then
     return 2;
   elif [ "$option" = 1 ]; then
+    line;
     git push origin "$currentBranch";
     line;
     return 0;
@@ -120,8 +122,7 @@ function pushChanges() {
     line;
     echo "Branch name to push into...";
     read -r branchNameToPush;
-    checkBranches "$branchNameToPush";
-    if [ "$?" == 2 ]; then
+    if ! checkBranches "$branchNameToPush"; then
       keypress;
       return 2;
     fi
@@ -255,7 +256,7 @@ function branchOpts() {
   elif [ "$answer" = 2 ]; then
 
     while true; do
-      echo "Choose branches or leave blank to exit.";
+      echo "Choose branches to show or leave blank to exit.";
       echo "0. Back.";
       echo "1. Local.";
       echo "2. Remote.";
