@@ -53,6 +53,7 @@ function showRepos() {
     line;
     echo "Can't push _mvn branch into not _mvn branch and vice versa. Aborting...";
     line;
+    keypress;
     return 1;
   else
     return 0;
@@ -116,13 +117,13 @@ function pushChanges() {
     line;
     return 0;
   else
-    line;
-    echo "Branches:"
-    git branch -a;
-    line;
-    echo "Branch name to push into...";
-    read -r branchNameToPush;
     while true; do
+      line;
+      echo "Branches:"
+      git branch -a;
+      line;
+      echo "Branch name to push into...";
+      read -r branchNameToPush;
       result=$(checkBranches "$branchNameToPush")
       if [ ! "$result" ]; then
         return 2;
