@@ -74,6 +74,21 @@ function checkout() {
   line;
 }
 
+function commitChanges() {
+  clear;
+  echo "Type commit title...";
+  read -r title;
+  echo "Type commit details...";
+  read -r details;
+  if checkIfBlank "$title"; then
+    return 2;
+  fi
+  line;
+  git commit -m "$title\n
+  $details";
+  line;
+}
+
 function infoOpts() {
   echo "0. <- Main menu.";
   echo "1. Config global name/mail.";
@@ -166,7 +181,7 @@ function infoOpts() {
 function branchOpts() {
   echo "0. <- Main menu.";
   echo "1. Show current branch.";
-  echo "2. Show all branches.";
+  echo "2. Show branches.";
   echo "3. Create branch.";
   echo "4. Change branch.";
   echo "5. Remove branch (locally with -D).";
@@ -179,29 +194,34 @@ function branchOpts() {
     git branch --show-current;
     line;
   elif [ "$answer" = 2 ]; then
-    echo "Choose branches or leave blank to exit.";
-    echo "1. Local.";
-    echo "2. Remote.";
-    echo "3. All.";
-    read -r branches;
-    if checkIfBlank "$branches"; then
-      return2;
-    fi
-    if [ "$branches" = 1 ]; then
-      line;
-      git branch;
-      line;
-    elif [ "$branches" = 2 ]; then
-      line;
-      git branch -r;
-      line;
-    elif [ "$branches" = 3 ]; then
-      line;
-      git branch -a;
-      line;
-    else
-      echo "Exiting...";
-    fi
+
+    while true; do
+      echo "Choose branches or leave blank to exit.";
+      echo "0. Back.";
+      echo "1. Local.";
+      echo "2. Remote.";
+      echo "3. All.";
+      read -r branches;
+      clear;
+      if checkIfBlank "$branches"; then
+        return 2;
+      fi
+      if [ "$branches" = 1 ]; then
+        line;
+        git branch;
+        line;
+      elif [ "$branches" = 2 ]; then
+        line;
+        git branch -r;
+        line;
+      elif [ "$branches" = 3 ]; then
+        line;
+        git branch -a;
+        line;
+      else
+        return 2;
+      fi
+    done
   elif [ "$answer" = 3 ]; then
     echo "Type your branch name...";
     read -r branchName;
@@ -219,12 +239,23 @@ function branchOpts() {
     git branch -a;
     echo "Type branch name to remove...(locally). Leave empty to cancel operation.";
     read -r branchName;
-    if checkIfBlank "$fileName" == 2; then
-       return 2;
+    if checkIfBlank "$branchName" == 2; then
+      return 2;
+    elif [ "$(git branch --show-current)" = "$branchName" ]; then
+      git branch;
+      echo "Can not delete current branch. First you need to change branch."
+      echo "Type branch to move..."
+      read -r branchToGo;
+      clear;
+      line;
+      git checkout "$branchToGo";
+      git branch -D "$branchName";
+      line;
+    else
+      line;
+      git branch -D "$branchName";
+      line;
     fi
-    line;
-    git branch -D "$branchName";
-    line;
   elif [ "$answer" = 6 ]; then
     echo "Type new name...";
     read -r branchName;
@@ -285,6 +316,13 @@ function mainOpts() {
       clear;
       return 2;
     fi
+    echo "Commit changes?";
+    echo "1. Yes.";
+    echo "2. No.";
+    read -r commit;
+    if [ "$commit" = 1 ]; then
+      commitChanges;
+    fi
   elif [ "$answer" = 4 ]; then
       clear;
       echo "1. Reset one...";
@@ -317,15 +355,7 @@ function mainOpts() {
     fi
     git merge "$mergeBranch";
   elif [ "$answer" = 6 ]; then
-    clear;
-    echo "Type commit title...";
-    read -r title;
-    echo "Type commit details...";
-    read -r details;
-    line;
-    git commit -m "$title\n
-    $details";
-    line;
+    commitChanges;
   elif [ "$answer" = 7 ]; then
     clear;
     currentBranch=$(git branch --show-current);
