@@ -1,8 +1,6 @@
 #!/bin/bash
 
 clear;
-cat ./pic.txt;
-sleep 1;
 
 if [ "$(git config --global core.editor)" != "nano" ]; then
   git config --global core.editor nano;
