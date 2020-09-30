@@ -1,7 +1,7 @@
 #!/bin/bash
 echo '{
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2020",
     "module": "commonjs",
     "sourceMap": true
   }
