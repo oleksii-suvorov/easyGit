@@ -96,6 +96,7 @@ while true; do
     fi
     sleep 1;
   fi
+
   if [ "$option" = 1 ]; then
     echo "Would you like to update all modules as well: (git pull origin $1)?";
     echo "1. Yes"
