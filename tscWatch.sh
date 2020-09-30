@@ -2,8 +2,8 @@
 echo '{
   "compilerOptions": {
     "target": "es2020",
-    "module": "commonjs",
-    "sourceMap": true
+    "module": "esnext",
+    "sourceMap": false
   }
 }' > tsconfig.json;
-tsc -p $(echo "$PWD") --watch
+tsc -p $(echo "$PWD") --watch;
